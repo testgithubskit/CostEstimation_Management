@@ -1,0 +1,30 @@
+/* App.css */
+.ant-layout-header {
+  padding: 0 24px !important;
+}
+
+.ant-descriptions-item-label {
+  font-weight: 600;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.layout-content {
+  padding: 24px;
+}
+
+@media (max-width: 576px) {
+  .layout-content {
+    padding: 12px;
+  }
+}

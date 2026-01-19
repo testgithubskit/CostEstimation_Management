@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+trimesh
+numpy
+sqlalchemy
+psycopg2-binary
+python-multipart
+pydantic-settings>=2.0.0
+PyPDF2>=3.0.0
+pandas>=2.0.0
+openpyxl>=3.1.0
+xlrd>=2.0.1
