@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
-import { Card, Button, Upload, message, Row, Col, Progress } from 'antd';
+import { Card, Button, Upload, message, Row, Col, Progress, Grid } from 'antd';
 import { InboxOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../components/MainLayout';
 import { projectService } from '../services/api';
 
 const { Dragger } = Upload;
+const { useBreakpoint } = Grid;
 
 const CreateProject = () => {
   const navigate = useNavigate();
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
+  const isTablet = !screens.lg;
   const [loading, setLoading] = useState(false);
   
   // File states
@@ -68,25 +72,33 @@ const CreateProject = () => {
 
   return (
     <MainLayout>
-      <div style={{ maxWidth: 1600, margin: '0 auto', padding: '0 16px' }}>
-        <Card style={{ marginBottom: 24, borderRadius: 8 }}>
+      <div style={{ width: '100%', padding: '0 8px' }}>
+        <Card style={{ marginBottom: isMobile ? 16 : 24, borderRadius: 8 }}>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
-            alignItems: 'center'
+            alignItems: 'center',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '8px' : '0'
           }}>
             <Button 
               icon={<ArrowLeftOutlined />} 
               onClick={() => navigate('/')}
+              size={isMobile ? 'small' : 'default'}
             >
-              Back
+              {isMobile ? '←' : 'Back'}
             </Button>
             
-            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>
-              Create New Project
+            <h2 style={{ 
+              margin: 0, 
+              fontSize: isMobile ? '16px' : '20px', 
+              fontWeight: 'bold',
+              textAlign: 'center'
+            }}>
+              {isMobile ? 'New Project' : 'Create New Project'}
             </h2>
             
-            <div style={{ width: 120 }}></div>
+            <div style={{ width: isMobile ? 80 : 120 }}></div>
           </div>
         </Card>
 
@@ -95,53 +107,71 @@ const CreateProject = () => {
             Upload the Route Card (mandatory) and optionally add 2D drawing and 3D model files
           </p>
 
-          <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
+          <Row gutter={[isMobile ? 16 : 24, isMobile ? 16 : 24]} style={{ marginTop: 24 }}>
             <Col xs={24} md={8}>
-              <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 'bold' }}>Route Card *</div>
+              <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 'bold', fontSize: isMobile ? '14px' : '16px' }}>
+                {isMobile ? 'Route Card *' : 'Route Card *'}
+              </div>
               <Dragger {...uploadProps(setOarcFile, '.pdf', 'Route Card')}>
                 <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
+                  <InboxOutlined style={{ fontSize: isMobile ? 32 : 48 }} />
                 </p>
-                <p className="ant-upload-text">Click to Upload Route Card</p>
-                <p className="ant-upload-hint">Contains operations for the product</p>
+                <p className="ant-upload-text" style={{ fontSize: isMobile ? '14px' : '16px' }}>
+                  {isMobile ? 'Upload Route Card' : 'Click to Upload Route Card'}
+                </p>
+                <p className="ant-upload-hint" style={{ fontSize: isMobile ? '12px' : '14px' }}>
+                  {isMobile ? 'Operations PDF' : 'Contains operations for the product'}
+                </p>
               </Dragger>
             </Col>
             <Col xs={24} md={8}>
-              <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 'bold' }}>2D Drawing (Optional)</div>
+              <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 'bold', fontSize: isMobile ? '14px' : '16px' }}>
+                {isMobile ? '2D Drawing' : '2D Drawing (Optional)'}
+              </div>
               <Dragger {...uploadProps(setDrawing2d, '.pdf', '2D Drawing')}>
                 <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
+                  <InboxOutlined style={{ fontSize: isMobile ? 32 : 48 }} />
                 </p>
-                <p className="ant-upload-text">Click to Upload 2D Drawing</p>
-                <p className="ant-upload-hint">Mechanical drawing 2D image PDF</p>
+                <p className="ant-upload-text" style={{ fontSize: isMobile ? '14px' : '16px' }}>
+                  {isMobile ? 'Upload 2D Drawing' : 'Click to Upload 2D Drawing'}
+                </p>
+                <p className="ant-upload-hint" style={{ fontSize: isMobile ? '12px' : '14px' }}>
+                  {isMobile ? 'Drawing PDF' : 'Mechanical drawing 2D image PDF'}
+                </p>
               </Dragger>
             </Col>
             <Col xs={24} md={8}>
-              <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 'bold' }}>3D Model (Optional)</div>
+              <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 'bold', fontSize: isMobile ? '14px' : '16px' }}>
+                {isMobile ? '3D Model' : '3D Model (Optional)'}
+              </div>
               <Dragger {...uploadProps(setDrawing3d, '.stp,.step', '3D Model')}>
                 <p className="ant-upload-drag-icon">
-                  <InboxOutlined />
+                  <InboxOutlined style={{ fontSize: isMobile ? 32 : 48 }} />
                 </p>
-                <p className="ant-upload-text">Click to Upload 3D Model</p>
-                <p className="ant-upload-hint">3D model in STEP format (.step, .stp)</p>
+                <p className="ant-upload-text" style={{ fontSize: isMobile ? '14px' : '16px' }}>
+                  {isMobile ? 'Upload 3D Model' : 'Click to Upload 3D Model'}
+                </p>
+                <p className="ant-upload-hint" style={{ fontSize: isMobile ? '12px' : '14px' }}>
+                  {isMobile ? 'STEP file' : '3D model in STEP format (.step, .stp)'}
+                </p>
               </Dragger>
             </Col>
           </Row>
 
-          <div style={{ marginTop: 80, textAlign: 'center', marginBottom: 24 }}>
+          <div style={{ marginTop: isMobile ? 60 : 80, textAlign: 'center', marginBottom: 24 }}>
             {/* Loading Progress Bar above button */}
             {loading && (
               <div style={{ 
                 width: '100%', 
                 margin: '0 auto 24px auto',
-                padding: '0 24px'
+                padding: isMobile ? '0 16px' : '0 24px'
               }}>
                 <Progress 
                   percent={99.9} 
                   status="active"
                   strokeColor="#1890ff"
                   trailColor="#f0f0f0"
-                  strokeWidth={8}
+                  strokeWidth={isMobile ? 6 : 8}
                   showInfo={false}
                   style={{ marginBottom: 0 }}
                 />
@@ -149,7 +179,7 @@ const CreateProject = () => {
                   textAlign: 'center', 
                   marginTop: 8, 
                   color: '#1890ff',
-                  fontSize: '14px',
+                  fontSize: isMobile ? '12px' : '14px',
                   fontWeight: 500
                 }}>
                   Creating project...
@@ -159,10 +189,14 @@ const CreateProject = () => {
             
             <Button 
               type="primary" 
-              size="large" 
+              size={isMobile ? 'middle' : 'large'} 
               onClick={handleUpload}
               disabled={loading}
-              style={{ minWidth: 200, height: 50, fontSize: 18 }}
+              style={{ 
+                minWidth: isMobile ? 150 : 200, 
+                height: isMobile ? 40 : 50, 
+                fontSize: isMobile ? 14 : 18 
+              }}
             >
               Create Project
             </Button>

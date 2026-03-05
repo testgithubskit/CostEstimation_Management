@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Spin } from 'antd';
+import { Modal, Button, Spin, Grid } from 'antd';
 import { PrinterOutlined } from '@ant-design/icons';
 import { projectService } from '../services/api';
+
+const { useBreakpoint } = Grid;
 
 const CostReportModal = ({
   open,
   onClose,
   data
 }) => {
+  const screens = useBreakpoint();
+  const isMobile = !screens.md; // md is 768px in Ant Design
+  const isTablet = !screens.lg; // lg is 992px in Ant Design
   const {
     projectId,
     project,
@@ -436,40 +441,45 @@ const CostReportModal = ({
     table: {
       width: '100%',
       borderCollapse: 'collapse',
-      marginBottom: '24px',
-      fontSize: '14px',
+      marginBottom: isMobile ? '16px' : '24px',
+      fontSize: isMobile ? '12px' : '14px',
       color: '#000'
     },
     th: {
       backgroundColor: '#dce6f1',
       border: '1px solid #000',
-      padding: '8px',
+      padding: isMobile ? '6px' : '8px',
       textAlign: 'center',
       fontWeight: 'bold',
-      color: '#000'
+      color: '#000',
+      fontSize: isMobile ? '11px' : '14px'
     },
     td: {
       border: '1px solid #000',
-      padding: '8px',
-      textAlign: 'center'
+      padding: isMobile ? '6px' : '8px',
+      textAlign: 'center',
+      fontSize: isMobile ? '11px' : '14px'
     },
     labelCell: {
       backgroundColor: '#dce6f1',
       border: '1px solid #000',
-      padding: '8px',
+      padding: isMobile ? '6px' : '8px',
       fontWeight: 'bold',
       textAlign: 'left',
-      width: '20%'
+      width: '20%',
+      fontSize: isMobile ? '11px' : '14px'
     },
     valueCell: {
       border: '1px solid #000',
-      padding: '8px',
+      padding: isMobile ? '6px' : '8px',
       textAlign: 'left',
-      width: '30%'
+      width: '30%',
+      fontSize: isMobile ? '11px' : '14px'
     },
     totalRow: {
       fontWeight: 'bold',
-      backgroundColor: '#fff'
+      backgroundColor: '#fff',
+      color: '#000'
     }
   };
 
@@ -478,16 +488,22 @@ const CostReportModal = ({
       title={`Cost Report - ${project?.project_name || 'Project'}`}
       open={open}
       onCancel={onClose}
-      width={1000}
+      width={isMobile ? '95%' : isTablet ? '90%' : 1000}
       footer={[
         <Button key="print" type="primary" icon={<PrinterOutlined />} onClick={handlePrint}>
-          Print
+          {isMobile ? 'Print' : 'Print Report'}
         </Button>,
         <Button key="close" onClick={onClose}>
-          Close
+          {isMobile ? 'Close' : 'Close'}
         </Button>,
       ]}
-      styles={{ body: { padding: '24px', overflowY: 'auto', maxHeight: 'calc(100vh - 200px)' } }}
+      styles={{ 
+        body: { 
+          padding: isMobile ? '16px' : '24px', 
+          overflowY: 'auto', 
+          maxHeight: isMobile ? 'calc(100vh - 120px)' : 'calc(100vh - 200px)' 
+        } 
+      }}
     >
       {loading ? (
         <div style={{ textAlign: 'center', padding: 50 }}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Card, List, Input, Tag, Empty, Space, Typography, Popconfirm, message } from 'antd';
+import { Button, Card, List, Input, Tag, Empty, Space, Typography, Popconfirm, message, Badge } from 'antd';
 import { PlusOutlined, SearchOutlined, CalendarOutlined, DeleteOutlined, SettingOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../components/MainLayout';
@@ -74,9 +74,17 @@ const Dashboard = () => {
     });
   };
 
+  const isNewProject = (dateString) => {
+    const createdDate = new Date(dateString);
+    const today = new Date();
+    const diffInMs = today - createdDate;
+    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+    return diffInDays <= 1; // Mark as new if created within last 24 hours
+  };
+
   return (
     <MainLayout>
-      <div style={{ maxWidth: 1600, margin: '0 auto', padding: '0 16px' }}>
+      <div style={{ width: '100%', padding: '0 8px' }}>
         <Card style={{ marginBottom: 24, borderRadius: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
@@ -126,8 +134,9 @@ const Dashboard = () => {
             }}
             dataSource={filteredProjects}
             loading={loading}
-            renderItem={(item) => (
-              <List.Item>
+            renderItem={(item) => {
+              const isNew = isNewProject(item.created_at);
+              const cardContent = (
                 <Card 
                   hoverable 
                   onClick={() => navigate(`/project/${item.id}`)}
@@ -146,9 +155,10 @@ const Dashboard = () => {
                   <div style={{
                     backgroundColor: '#e6f7ff',
                     padding: '16px',
-                    borderBottom: '1px solid #e8e8e8'
+                    borderBottom: '1px solid #e8e8e8',
+                    position: 'relative'
                   }}>
-                    <Text strong style={{ fontSize: 16, color: '#000' }}>
+                    <Text strong style={{ fontSize: 16, color: '#000', paddingRight: isNew ? '40px' : '0' }}>
                       {item.project_name}
                     </Text>
                   </div>
@@ -208,8 +218,20 @@ const Dashboard = () => {
                     </Space>
                   </div>
                 </Card>
-              </List.Item>
-            )}
+              );
+
+              return (
+                <List.Item>
+                  {isNew ? (
+                    <Badge.Ribbon text="New" color="green">
+                      {cardContent}
+                    </Badge.Ribbon>
+                  ) : (
+                    cardContent
+                  )}
+                </List.Item>
+              );
+            }}
           />
         </Card>
       </div>

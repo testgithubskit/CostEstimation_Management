@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Card, Button, Space, message, Spin, Empty, List, Typography, Tag, Popconfirm } from 'antd';
+import { Card, Button, Space, message, Spin, Empty, List, Typography, Tag, Popconfirm, Grid } from 'antd';
 import { ArrowLeftOutlined, HistoryOutlined, CalendarOutlined, NumberOutlined, DeleteOutlined } from '@ant-design/icons';
 import MainLayout from '../components/MainLayout';
 import { costVersionService } from '../services/api';
 
 const { Text } = Typography;
+const { useBreakpoint } = Grid;
 
 const CostVersionsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
+  const isTablet = !screens.lg;
   const [versions, setVersions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -67,26 +71,37 @@ const CostVersionsPage = () => {
 
   return (
     <MainLayout>
-      <div style={{ maxWidth: 1600, margin: '0 auto', padding: '0 16px' }}>
-        <Card style={{ marginBottom: 24, borderRadius: 8 }}>
+      <div style={{ width: '100%', padding: '0 8px' }}>
+        <Card style={{ marginBottom: isMobile ? 16 : 24, borderRadius: 8 }}>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
-            alignItems: 'center'
+            alignItems: 'center',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '8px' : '0'
           }}>
             <Button 
               icon={<ArrowLeftOutlined />} 
               onClick={() => navigate(`/project/${id}`)}
+              size={isMobile ? 'small' : 'default'}
             >
-              Back
+              {isMobile ? '←' : 'Back'}
             </Button>
             
-            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: '500' }}>
-              <HistoryOutlined style={{ marginRight: 8 }} />
-              Cost Version History
+            <h2 style={{ 
+              margin: 0, 
+              fontSize: isMobile ? '16px' : '20px', 
+              fontWeight: '500',
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <HistoryOutlined style={{ marginRight: isMobile ? 4 : 8 }} />
+              {isMobile ? 'Versions' : 'Cost Version History'}
             </h2>
             
-            <div style={{ width: 100 }}></div>
+            <div style={{ width: isMobile ? 80 : 100 }}></div>
           </div>
         </Card>
 
@@ -99,10 +114,10 @@ const CostVersionsPage = () => {
         ) : versions.length > 0 ? (
           <List
             grid={{
-              gutter: 16,
+              gutter: isMobile ? 12 : 16,
               xs: 1,
               sm: 2,
-              md: 3,
+              md: 2,
               lg: 3,
               xl: 4,
               xxl: 4,
@@ -127,20 +142,20 @@ const CostVersionsPage = () => {
                   {/* Header with blue background */}
                   <div style={{
                     backgroundColor: '#e6f7ff',
-                    padding: '16px',
+                    padding: isMobile ? '12px' : '16px',
                     borderBottom: '1px solid #e8e8e8'
                   }}>
-                    <Text strong style={{ fontSize: 16, color: '#000' }}>
+                    <Text strong style={{ fontSize: isMobile ? 14 : 16, color: '#000' }}>
                       Version {version.version_no}
                     </Text>
                   </div>
 
                   {/* Body */}
-                  <div style={{ padding: 16 }}>
-                    <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                  <div style={{ padding: isMobile ? '12px' : '16px' }}>
+                    <Space direction="vertical" size={isMobile ? "small" : "small"} style={{ width: '100%' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text type="secondary" style={{ fontSize: 12 }}>Total Cost</Text>
-                        <Text strong style={{ fontSize: 16 }}>
+                        <Text type="secondary" style={{ fontSize: isMobile ? 11 : 12 }}>Total Cost</Text>
+                        <Text strong style={{ fontSize: isMobile ? 14 : 16 }}>
                           ₹{version.total_cost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                         </Text>
                       </div>
@@ -151,16 +166,16 @@ const CostVersionsPage = () => {
                           justifyContent: 'space-between', 
                           alignItems: 'flex-start' 
                         }}>
-                          <Text type="secondary" style={{ fontSize: 12, marginRight: 8 }}>Notes</Text>
-                          <Text style={{ fontSize: 12, color: '#333', textAlign: 'right' }}>
+                          <Text type="secondary" style={{ fontSize: isMobile ? 11 : 12, marginRight: 8 }}>Notes</Text>
+                          <Text style={{ fontSize: isMobile ? 11 : 12, color: '#333', textAlign: 'right' }}>
                             {version.notes || version.note}
                           </Text>
                         </div>
                       ) : null}
                       
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text type="secondary" style={{ fontSize: 12 }}>Operations</Text>
-                        <Tag color="blue" style={{ margin: 0 }}>{version.operations_count}</Tag>
+                        <Text type="secondary" style={{ fontSize: isMobile ? 11 : 12 }}>Operations</Text>
+                        <Tag color="blue" style={{ margin: 0, fontSize: isMobile ? 10 : 12 }}>{version.operations_count}</Tag>
                       </div>
                       
                       <div style={{ 
@@ -172,8 +187,8 @@ const CostVersionsPage = () => {
                         alignItems: 'center' 
                       }}>
                         <Space size={4}>
-                          <CalendarOutlined style={{ color: '#999', fontSize: 14 }} />
-                          <Text type="secondary" style={{ fontSize: 12 }}>
+                          <CalendarOutlined style={{ color: '#999', fontSize: isMobile ? 12 : 14 }} />
+                          <Text type="secondary" style={{ fontSize: isMobile ? 10 : 12 }}>
                             {formatDate(version.created_at)}
                           </Text>
                         </Space>
@@ -190,8 +205,8 @@ const CostVersionsPage = () => {
                             danger 
                             icon={<DeleteOutlined />} 
                             onClick={(e) => e.stopPropagation()}
-                            size="small"
-                            style={{ padding: '4px 8px' }}
+                            size={isMobile ? 'small' : 'small'}
+                            style={{ padding: isMobile ? '2px 4px' : '4px 8px' }}
                           />
                         </Popconfirm>
                       </div>

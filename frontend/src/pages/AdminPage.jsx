@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Upload, message, Table, Space, Popconfirm, Modal, InputNumber, Input, Form, Tabs, Divider } from 'antd';
+import { Card, Button, Upload, message, Table, Space, Popconfirm, Modal, InputNumber, Input, Form, Tabs, Divider, Grid } from 'antd';
 import { InboxOutlined, ArrowLeftOutlined, DeleteOutlined, ReloadOutlined, PlusOutlined, EditOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../components/MainLayout';
 import { adminService } from '../services/api';
 
 const { Dragger } = Upload;
+const { useBreakpoint } = Grid;
 
 const AdminPage = () => {
   const navigate = useNavigate();
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
+  const isTablet = !screens.lg;
   const [uploading, setUploading] = useState(false);
   const [excelFile, setExcelFile] = useState(null);
   const [stats, setStats] = useState(null);
@@ -167,55 +171,60 @@ const AdminPage = () => {
       key: 'slno',
       align: 'center',
       render: (_, __, index) => index + 1,
-      width: 80,
+      width: isMobile ? 60 : 80,
     },
     {
-      title: 'Work Center Code',
+      title: 'WC Code',
       dataIndex: 'Work_Center_Code',
       key: 'Work_Center_Code',
       align: 'center',
-      width: 150,
+      width: isMobile ? 100 : 150,
+      ellipsis: true,
     },
     {
-      title: 'Work Center Type',
+      title: 'WC Type',
       dataIndex: 'Work_Center_Type',
       key: 'Work_Center_Type',
       align: 'center',
-      width: 150,
+      width: isMobile ? 100 : 150,
+      ellipsis: true,
     },
     {
-      title: 'Machine Make',
+      title: 'Make',
       dataIndex: 'Machine_Make',
       key: 'Machine_Make',
       align: 'center',
-      width: 140,
+      width: isMobile ? 100 : 140,
+      ellipsis: true,
     },
     {
-      title: 'Machine Model',
+      title: 'Model',
       dataIndex: 'Machine_Model',
       key: 'Machine_Model',
       align: 'center',
-      width: 180,
+      width: isMobile ? 120 : 180,
+      ellipsis: true,
     },
     {
-      title: 'Hourly Rate (₹/hr)',
+      title: 'Rate (₹/hr)',
       dataIndex: 'Hourly_Rate',
       key: 'Hourly_Rate',
       render: (val) => `₹${Number(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
       align: 'center',
-      width: 140,
+      width: isMobile ? 100 : 140,
     },
     {
       title: 'Actions',
       key: 'actions',
       align: 'center',
-      width: 100,
+      width: isMobile ? 80 : 100,
       fixed: 'right',
       render: (_, record) => (
-        <Space size="middle">
+        <Space size={isMobile ? "small" : "middle"}>
           <Button
             type="text"
             icon={<EditOutlined />}
+            size={isMobile ? 'small' : 'default'}
             onClick={() => {
               setEditRecord(record);
               setEditRate(Number(record.Hourly_Rate || 0));
@@ -235,6 +244,7 @@ const AdminPage = () => {
               type="text"
               danger
               icon={<DeleteOutlined />}
+              size={isMobile ? 'small' : 'default'}
             />
           </Popconfirm>
         </Space>
@@ -314,30 +324,39 @@ const AdminPage = () => {
 
   return (
     <MainLayout>
-      <div style={{ maxWidth: 1600, margin: '0 auto', padding: '0 16px' }}>
-        <Card style={{ marginBottom: 24, borderRadius: 8 }}>
+      <div style={{ width: '100%', padding: '0 8px' }}>
+        <Card style={{ marginBottom: isMobile ? 16 : 24, borderRadius: 8 }}>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
-            alignItems: 'center'
+            alignItems: 'center',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '8px' : '0'
           }}>
             <Button 
               icon={<ArrowLeftOutlined />} 
               onClick={() => navigate('/')}
+              size={isMobile ? 'small' : 'default'}
             >
-              Back
+              {isMobile ? '←' : 'Back'}
             </Button>
             
-            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>
-              Admin - Machine Data Management
+            <h2 style={{ 
+              margin: 0, 
+              fontSize: isMobile ? '16px' : '20px', 
+              fontWeight: 'bold',
+              textAlign: 'center'
+            }}>
+              {isMobile ? 'Admin' : 'Admin - Machine Data Management'}
             </h2>
             
             <Button
               icon={<ReloadOutlined />}
               onClick={fetchStats}
               loading={loadingStats}
+              size={isMobile ? 'small' : 'default'}
             >
-              Refresh
+              {isMobile ? '↻' : 'Refresh'}
             </Button>
           </div>
         </Card>
@@ -384,15 +403,23 @@ const AdminPage = () => {
             columns={machineColumns}
             dataSource={machineData}
             rowKey={(record) => record.id}
-            pagination={{ pageSize: 10 }}
+            pagination={{ 
+              pageSize: isMobile ? 5 : 10, 
+              size: isMobile ? 'small' : 'default',
+              showSizeChanger: !isMobile 
+            }}
             loading={loadingMachines}
             bordered
-            size="middle"
-            scroll={{ x: 1200 }}
+            size={isMobile ? 'small' : 'middle'}
+            scroll={{ x: isMobile ? 800 : 1200 }}
             components={{
               header: {
                 cell: (props) => (
-                  <th {...props} style={{ ...props.style, backgroundColor: '#e6f7ff' }} />
+                  <th {...props} style={{ 
+                    ...props.style, 
+                    backgroundColor: '#e6f7ff',
+                    fontSize: isMobile ? '12px' : '14px'
+                  }} />
                 ),
               },
             }}

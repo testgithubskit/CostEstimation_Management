@@ -1,15 +1,21 @@
 import React from 'react';
-import { Card, Table } from 'antd';
+import { Card, Table, Grid } from 'antd';
+
+const { useBreakpoint } = Grid;
 
 const CostBreakdownCard = ({ operations, totalCost, style }) => {
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
+  const isTablet = !screens.lg;
+
   const costColumns = [
     {
       title: 'Op No',
       dataIndex: 'oprn_no',
       key: 'oprn_no',
       align: 'center',
-      width: 100,
-      fixed: 'left',
+      width: isMobile ? 80 : 100,
+      fixed: isMobile ? false : 'left',
       render: (text) => text || '-'
     },
     {
@@ -17,7 +23,7 @@ const CostBreakdownCard = ({ operations, totalCost, style }) => {
       dataIndex: 'wc',
       key: 'wc',
       align: 'center',
-      width: 120,
+      width: isMobile ? 80 : 120,
       render: (text) => text || '-'
     },
     {
@@ -25,7 +31,8 @@ const CostBreakdownCard = ({ operations, totalCost, style }) => {
       dataIndex: 'operation',
       key: 'operation',
       align: 'center',
-      width: 200,
+      width: isMobile ? 120 : 200,
+      ellipsis: true,
       render: (text) => text || '-'
     },
     {
@@ -33,7 +40,8 @@ const CostBreakdownCard = ({ operations, totalCost, style }) => {
       dataIndex: 'selected_machine',
       key: 'selected_machine',
       align: 'center',
-      width: 180,
+      width: isMobile ? 120 : 180,
+      ellipsis: true,
       render: (text) => text || '-'
     },
     {
@@ -41,7 +49,7 @@ const CostBreakdownCard = ({ operations, totalCost, style }) => {
       dataIndex: 'allowed_time_hrs',
       key: 'allowed_time_hrs',
       align: 'center',
-      width: 150,
+      width: isMobile ? 120 : 150,
       render: (text) => (text !== undefined && text !== null) ? parseFloat(text).toFixed(2) : '-'
     },
     {
@@ -49,8 +57,8 @@ const CostBreakdownCard = ({ operations, totalCost, style }) => {
       dataIndex: 'calculated_cost',
       key: 'calculated_cost',
       align: 'center',
-      width: 150,
-      fixed: 'right',
+      width: isMobile ? 100 : 150,
+      fixed: isMobile ? false : 'right',
       render: (cost) => cost ? `₹${cost.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '-'
     }
   ];
@@ -65,16 +73,22 @@ const CostBreakdownCard = ({ operations, totalCost, style }) => {
         columns={costColumns}
         dataSource={operations}
         rowKey="id"
+        size={isMobile ? 'small' : 'middle'}
         pagination={{
-          pageSize: 6,
+          pageSize: isMobile ? 3 : 6,
           showSizeChanger: false,
-          showTotal: (total) => `Total ${total} operations`
+          showTotal: (total) => `Total ${total} operations`,
+          size: isMobile ? 'small' : 'default'
         }}
-        scroll={{ x: 800 }}
+        scroll={{ x: isMobile ? 600 : 800 }}
         components={{
           header: {
             cell: (props) => (
-              <th {...props} style={{ ...props.style, backgroundColor: '#e6f7ff' }} />
+              <th {...props} style={{ 
+                ...props.style, 
+                backgroundColor: '#e6f7ff',
+                fontSize: isMobile ? '12px' : '14px'
+              }} />
             ),
           },
         }}
@@ -83,18 +97,23 @@ const CostBreakdownCard = ({ operations, totalCost, style }) => {
       {/* Total Cost Section */}
       <div style={{ 
         marginTop: 24, 
-        padding: 20, 
+        padding: isMobile ? 16 : 20, 
         backgroundColor: '#e6f7ff',
         borderRadius: 8,
         border: '1px solid #91d5ff',
         textAlign: 'center'
       }}>
-        <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '500', color: '#000' }}>
+        <h3 style={{ 
+          margin: 0, 
+          fontSize: isMobile ? '14px' : '16px', 
+          fontWeight: '500', 
+          color: '#000' 
+        }}>
           Operational Cost
         </h3>
         <p style={{ 
           margin: '8px 0 0', 
-          fontSize: '32px', 
+          fontSize: isMobile ? '24px' : '32px', 
           fontWeight: 'bold',
           color: '#1890ff' 
         }}>

@@ -1,13 +1,24 @@
-import React, { useRef } from 'react';
-import { Card, Tabs, Button, Spin, Empty, Row, Col, Input, Space, Modal, Segmented, Radio, Table } from 'antd';
-import { ArrowLeftOutlined, SaveOutlined, HistoryOutlined, CodeSandboxOutlined, FileImageOutlined } from '@ant-design/icons';
+import React, { useState, useEffect, useRef } from 'react';
+import { Card, Tabs, Button, Spin, Empty, Row, Col, Input, Space, Modal, Segmented, Radio, Table, Grid } from 'antd';
+import { 
+  SaveOutlined, 
+  PrinterOutlined, 
+  EditOutlined, 
+  CloseOutlined, 
+  HistoryOutlined, 
+  ArrowLeftOutlined, 
+  CodeSandboxOutlined, 
+  FileImageOutlined 
+} from '@ant-design/icons';
+import { projectService } from '../services/api';
 import ProjectDetailsCard from './ProjectDetailsCard';
 import OperationsTable from './OperationsTable';
 import ModelViewer3D from './ModelViewer3D';
 import CostBreakdownCard from './CostBreakdownCard';
 import MiscellaneousCostsTable from './MiscellaneousCostsTable';
 import CostReportModal from './CostReportModal';
-import { projectService } from '../services/api';
+
+const { useBreakpoint } = Grid;
 
 const ProjectDetailsView = ({
   navigate,
@@ -48,6 +59,9 @@ const ProjectDetailsView = ({
   searchText,
   setSearchText
 }) => {
+  const screens = useBreakpoint();
+  const isMobile = !screens.md; // md is 768px in Ant Design
+  const isTablet = !screens.lg; // lg is 992px in Ant Design
   const viewerRef = useRef(null);
   const [reportImage, setReportImage] = React.useState(null);
   const [saveMode, setSaveMode] = React.useState('new');
@@ -87,7 +101,7 @@ const ProjectDetailsView = ({
   const tabItems = [
     {
       key: 'details',
-      label: 'Project Details',
+      label: isMobile ? 'Details' : 'Project Details',
       children: (
         <div>
           <ProjectDetailsCard project={project} />
@@ -113,25 +127,29 @@ const ProjectDetailsView = ({
             justifyContent: 'flex-end',
             marginTop: 24,
             padding: '16px 0',
-            borderTop: '1px solid #f0f0f0'
+            borderTop: '1px solid #f0f0f0',
+            flexDirection: isMobile ? 'column' : 'row',
+            gap: isMobile ? '8px' : '0'
           }}>
-            <Space>
+            <Space direction={isMobile ? 'vertical' : 'horizontal'} style={{ width: isMobile ? '100%' : 'auto' }}>
               <Button
                 type="primary"
                 icon={<SaveOutlined />}
                 onClick={onCalculateAndSave}
                 loading={calculatingCosts}
                 disabled={calculatingCosts}
-                size="large"
+                size={isMobile ? 'default' : 'large'}
+                style={{ width: isMobile ? '100%' : 'auto' }}
               >
-                {calculatingCosts ? 'Calculating...' : 'Save Project Details'}
+                {calculatingCosts ? 'Calculating...' : (isMobile ? 'Save' : 'Save Project Details')}
               </Button>
               <Button
                 icon={<HistoryOutlined />}
                 onClick={() => navigate(`/project/${projectId}/versions`)}
-                size="large"
+                size={isMobile ? 'default' : 'large'}
+                style={{ width: isMobile ? '100%' : 'auto' }}
               >
-                View Version History
+                {isMobile ? 'Versions' : 'View Version History'}
               </Button>
             </Space>
           </div>
@@ -140,34 +158,34 @@ const ProjectDetailsView = ({
     },
     {
       key: 'costs',
-      label: 'Estimated Cost',
+      label: isMobile ? 'Costs' : 'Estimated Cost',
       children: (
         <div style={{ position: 'relative' }}>
           {calculatedOperations.length > 0 ? (
             <>
               <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end' }}>
                 {currentVersionId && (
-                  <span style={{ color: '#666', fontSize: 14 }}>
-                    Viewing Version: <strong>v{currentVersionId}</strong>
+                  <span style={{ color: '#666', fontSize: isMobile ? 12 : 14 }}>
+                    {isMobile ? 'Ver:' : 'Viewing Version:'} <strong>v{currentVersionId}</strong>
                   </span>
                 )}
               </div>
 
-              {/* Main Content Row - Fixed Height */}
-              <Row gutter={24} style={{ marginBottom: 24 }}>
+              {/* Main Content Row - Responsive Height */}
+              <Row gutter={[isMobile ? 16 : 24, 16]} style={{ marginBottom: 24 }}>
                 {/* Left Side - 3D/2D Viewer */}
                 {showViewer && (
                   <Col xs={24} lg={14} xl={14}>
                     <Card 
                       style={{ 
                         marginBottom: 24,
-                        height: '700px'
+                        height: isMobile ? '400px' : '700px'
                       }}
                       bodyStyle={{ 
                         height: '100%',
                         display: 'flex', 
                         flexDirection: 'column',
-                        padding: '24px'
+                        padding: isMobile ? '16px' : '24px'
                       }}
                     >
                       <div style={{ marginBottom: 16, textAlign: 'center' }}>
@@ -178,6 +196,7 @@ const ProjectDetailsView = ({
                           ]}
                           value={viewMode}
                           onChange={setViewMode}
+                          size={isMobile ? 'small' : 'default'}
                         />
                       </div>
 
@@ -234,12 +253,17 @@ const ProjectDetailsView = ({
 
                 {/* Right Side - Cost Cards */}
                 <Col xs={24} lg={showViewer ? 10 : 24} xl={showViewer ? 10 : 24}>
-                  <div style={{ height: '700px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ 
+                    height: isMobile ? 'auto' : '700px', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '16px' 
+                  }}>
                     {/* Cost Breakdown Card - Takes 60% */}
                     <Card 
                       style={{ 
                         borderRadius: 8,
-                        height: '55%',
+                        height: isMobile ? 'auto' : '55%',
                         display: 'flex',
                         flexDirection: 'column'
                       }}
@@ -247,10 +271,15 @@ const ProjectDetailsView = ({
                         flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        padding: '20px'
+                        padding: isMobile ? '16px' : '20px'
                       }}
                     >
-                      <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: 16, marginTop: 0 }}>
+                      <h3 style={{ 
+                        fontSize: isMobile ? '14px' : '16px', 
+                        fontWeight: 'bold', 
+                        marginBottom: 16, 
+                        marginTop: 0 
+                      }}>
                         Cost Breakdown
                       </h3>
                       <div style={{ flex: 1, overflow: 'auto' }}>
@@ -261,7 +290,7 @@ const ProjectDetailsView = ({
                               dataIndex: 'oprn_no', 
                               key: 'oprn_no', 
                               align: 'center', 
-                              width: 80,
+                              width: isMobile ? 60 : 80,
                               fixed: 'left',
                               render: (text) => text || '-'
                             },
@@ -270,7 +299,7 @@ const ProjectDetailsView = ({
                               dataIndex: 'wc', 
                               key: 'wc', 
                               align: 'center', 
-                              width: 100,
+                              width: isMobile ? 80 : 100,
                               render: (text) => text || '-'
                             },
                             { 
@@ -278,7 +307,7 @@ const ProjectDetailsView = ({
                               dataIndex: 'operation', 
                               key: 'operation', 
                               align: 'center',
-                              width: 150,
+                              width: isMobile ? 120 : 150,
                               ellipsis: true,
                               render: (text) => text || '-'
                             },
@@ -287,7 +316,7 @@ const ProjectDetailsView = ({
                               dataIndex: 'selected_machine', 
                               key: 'selected_machine', 
                               align: 'center',
-                              width: 150,
+                              width: isMobile ? 120 : 150,
                               ellipsis: true,
                               render: (text) => text || '-'
                             },
@@ -296,7 +325,7 @@ const ProjectDetailsView = ({
                               dataIndex: 'allowed_time_hrs', 
                               key: 'allowed_time_hrs', 
                               align: 'center',
-                              width: 150,
+                              width: isMobile ? 120 : 150,
                               render: (text) => (text !== undefined && text !== null) ? parseFloat(text).toFixed(2) : '-'
                             },
                             { 
@@ -304,24 +333,30 @@ const ProjectDetailsView = ({
                               dataIndex: 'calculated_cost', 
                               key: 'calculated_cost', 
                               align: 'center',
-                              width: 120,
+                              width: isMobile ? 100 : 120,
                               fixed: 'right',
                               render: (cost) => `₹${parseFloat(cost || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
                             }
                           ]}
                           dataSource={filteredCalculatedOps}
                           rowKey="id"
-                          pagination={{ pageSize: 5, size: 'small', showSizeChanger: false }}
+                          pagination={{ 
+                            pageSize: isMobile ? 3 : 5, 
+                            size: 'small', 
+                            showSizeChanger: false 
+                          }}
                           size="small"
-                          scroll={{ x: 700 }}
+                          scroll={{ x: isMobile ? 600 : 700 }}
                           summary={() => (
                             <Table.Summary fixed>
                               <Table.Summary.Row>
                                 <Table.Summary.Cell index={0} colSpan={5} align="left">
-                                  <strong>Operational Cost</strong>
+                                  <strong style={{ fontSize: isMobile ? '12px' : '14px' }}>
+                                    {isMobile ? 'Op Cost' : 'Operational Cost'}
+                                  </strong>
                                 </Table.Summary.Cell>
                                 <Table.Summary.Cell index={5} align="center">
-                                  <strong style={{ color: '#1890ff' }}>
+                                  <strong style={{ color: '#1890ff', fontSize: isMobile ? '12px' : '14px' }}>
                                     ₹{totalCost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                   </strong>
                                 </Table.Summary.Cell>
@@ -331,7 +366,11 @@ const ProjectDetailsView = ({
                           components={{
                             header: {
                               cell: (props) => (
-                                <th {...props} style={{ ...props.style, backgroundColor: '#e6f7ff' }} />
+                                <th {...props} style={{ 
+                                  ...props.style, 
+                                  backgroundColor: '#e6f7ff',
+                                  fontSize: isMobile ? '11px' : '14px'
+                                }} />
                               ),
                             },
                           }}
@@ -343,7 +382,7 @@ const ProjectDetailsView = ({
                     <Card 
                       style={{ 
                         borderRadius: 8,
-                        height: '43%',
+                        height: isMobile ? 'auto' : '43%',
                         display: 'flex',
                         flexDirection: 'column'
                       }}
@@ -351,10 +390,15 @@ const ProjectDetailsView = ({
                         flex: 1,
                         display: 'flex',
                         flexDirection: 'column',
-                        padding: '20px'
+                        padding: isMobile ? '16px' : '20px'
                       }}
                     >
-                      <h3 style={{ fontSize: '16px', fontWeight: 'bold', marginBottom: 16, marginTop: 0 }}>
+                      <h3 style={{ 
+                        fontSize: isMobile ? '14px' : '16px', 
+                        fontWeight: 'bold', 
+                        marginBottom: 16, 
+                        marginTop: 0 
+                      }}>
                         Miscellaneous Cost
                       </h3>
                       <div style={{ flex: 1, overflow: 'auto' }}>
@@ -372,7 +416,7 @@ const ProjectDetailsView = ({
                               dataIndex: 'cost_value', 
                               key: 'cost_value', 
                               align: 'center',
-                              width: 140,
+                              width: isMobile ? 120 : 140,
                               render: (v) => `₹${parseFloat(v || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
                             },
                             { 
@@ -386,16 +430,22 @@ const ProjectDetailsView = ({
                           ]}
                           dataSource={miscCosts}
                           rowKey={(r) => r.id || `${r.cost_type}-${r.description}`}
-                          pagination={{ pageSize: 3, size: 'small', showSizeChanger: false }}
+                          pagination={{ 
+                            pageSize: isMobile ? 2 : 3, 
+                            size: 'small', 
+                            showSizeChanger: false 
+                          }}
                           size="small"
                           summary={() => (
                             <Table.Summary fixed>
                               <Table.Summary.Row>
                                 <Table.Summary.Cell index={0} colSpan={2} align="left">
-                                  <strong>Total Miscellaneous Cost</strong>
+                                  <strong style={{ fontSize: isMobile ? '12px' : '14px' }}>
+                                    {isMobile ? 'Total Misc' : 'Total Miscellaneous Cost'}
+                                  </strong>
                                 </Table.Summary.Cell>
                                 <Table.Summary.Cell index={2} align="center">
-                                  <strong style={{ color: '#1890ff' }}>
+                                  <strong style={{ color: '#1890ff', fontSize: isMobile ? '12px' : '14px' }}>
                                     ₹{parseFloat(totalMiscCost || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                   </strong>
                                 </Table.Summary.Cell>
@@ -405,7 +455,11 @@ const ProjectDetailsView = ({
                           components={{
                             header: {
                               cell: (props) => (
-                                <th {...props} style={{ ...props.style, backgroundColor: '#e6f7ff' }} />
+                                <th {...props} style={{ 
+                                  ...props.style, 
+                                  backgroundColor: '#e6f7ff',
+                                  fontSize: isMobile ? '11px' : '14px'
+                                }} />
                               ),
                             },
                           }}
@@ -417,36 +471,40 @@ const ProjectDetailsView = ({
               </Row>
 
               {/* Total Cost Summary - Below Everything */}
-              <Row gutter={24}>
+              <Row gutter={[isMobile ? 16 : 24, 16]}>
                 <Col xs={24}>
                   <Card style={{
                     borderRadius: 8,
                     background: '#e6f7ff',
                     border: '1px solid #91d5ff'
                   }}>
-                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                    <div style={{ textAlign: 'center', padding: isMobile ? '16px 0' : '20px 0' }}>
                       <h2 style={{
                         color: '#000',
                         margin: 0,
-                        fontSize: '20px',
+                        fontSize: isMobile ? '16px' : '20px',
                         fontWeight: 'bold',
-                        marginBottom: 24
+                        marginBottom: isMobile ? 16 : 24
                       }}>
-                        Total Project Cost Estimation
+                        {isMobile ? 'Total Cost' : 'Total Project Cost Estimation'}
                       </h2>
 
-                      <Row gutter={[24, 24]} justify="center">
+                      <Row gutter={[isMobile ? 16 : 24, 16]} justify="center">
                         <Col xs={24} sm={12} md={8}>
                           <div style={{
                             background: 'white',
-                            padding: '24px 16px',
+                            padding: isMobile ? '16px 12px' : '24px 16px',
                             borderRadius: 8,
                             border: '1px solid #d9d9d9'
                           }}>
-                            <div style={{ color: '#666', fontSize: 14, marginBottom: 12 }}>
-                              Operational Cost
+                            <div style={{ color: '#666', fontSize: isMobile ? 12 : 14, marginBottom: 12 }}>
+                              {isMobile ? 'Op Cost' : 'Operational Cost'}
                             </div>
-                            <div style={{ color: '#1890ff', fontSize: 28, fontWeight: 'bold' }}>
+                            <div style={{ 
+                              color: '#1890ff', 
+                              fontSize: isMobile ? 20 : 28, 
+                              fontWeight: 'bold' 
+                            }}>
                               ₹{totalCost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                             </div>
                           </div>
@@ -455,14 +513,18 @@ const ProjectDetailsView = ({
                         <Col xs={24} sm={12} md={8}>
                           <div style={{
                             background: 'white',
-                            padding: '24px 16px',
+                            padding: isMobile ? '16px 12px' : '24px 16px',
                             borderRadius: 8,
                             border: '1px solid #d9d9d9'
                           }}>
-                            <div style={{ color: '#666', fontSize: 14, marginBottom: 12 }}>
-                              Miscellaneous Cost
+                            <div style={{ color: '#666', fontSize: isMobile ? 12 : 14, marginBottom: 12 }}>
+                              {isMobile ? 'Misc Cost' : 'Miscellaneous Cost'}
                             </div>
-                            <div style={{ color: '#1890ff', fontSize: 28, fontWeight: 'bold' }}>
+                            <div style={{ 
+                              color: '#1890ff', 
+                              fontSize: isMobile ? 20 : 28, 
+                              fontWeight: 'bold' 
+                            }}>
                               ₹{totalMiscCost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                             </div>
                           </div>
@@ -471,14 +533,23 @@ const ProjectDetailsView = ({
                         <Col xs={24} sm={24} md={8}>
                           <div style={{
                             background: '#1890ff',
-                            padding: '24px 16px',
+                            padding: isMobile ? '16px 12px' : '24px 16px',
                             borderRadius: 8,
                             border: '2px solid #096dd9'
                           }}>
-                            <div style={{ color: 'white', fontSize: 14, fontWeight: '500', marginBottom: 12 }}>
+                            <div style={{ 
+                              color: 'white', 
+                              fontSize: isMobile ? 12 : 14, 
+                              fontWeight: '500', 
+                              marginBottom: 12 
+                            }}>
                               TOTAL COST
                             </div>
-                            <div style={{ color: 'white', fontSize: 32, fontWeight: 'bold' }}>
+                            <div style={{ 
+                              color: 'white', 
+                              fontSize: isMobile ? 24 : 32, 
+                              fontWeight: 'bold' 
+                            }}>
                               ₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                             </div>
                           </div>
@@ -505,28 +576,44 @@ const ProjectDetailsView = ({
   ];
 
   return (
-    <div style={{ maxWidth: 1600, margin: '0 auto', padding: '0 16px' }}>
-      <Card style={{ marginBottom: 24, borderRadius: 8 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ width: '100%', padding: '0 8px' }}>
+      <Card style={{ marginBottom: isMobile ? 16 : 24, borderRadius: 8 }}>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? '8px' : '0'
+        }}>
           <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/')}>
-            Back
+            {isMobile ? '←' : 'Back'}
           </Button>
           {project.project_name && (
-            <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>
+            <h2 style={{ 
+              margin: 0, 
+              fontSize: isMobile ? '16px' : '20px', 
+              fontWeight: 'bold',
+              textAlign: 'center'
+            }}>
               {project.project_name}
             </h2>
           )}
-          <div style={{ width: 80 }}></div>
+          <div style={{ width: isMobile ? 80 : 80 }}></div>
         </div>
       </Card>
 
       <Tabs
         activeKey={activeTab}
         onChange={setActiveTab}
+        size={isMobile ? 'small' : 'default'}
         tabBarExtraContent={
           activeTab === 'costs' ? (
-            <Button type="primary" onClick={handleGenerateReport}>
-              View Report
+            <Button 
+              type="primary" 
+              onClick={handleGenerateReport}
+              size={isMobile ? 'small' : 'default'}
+            >
+              {isMobile ? 'Report' : 'View Report'}
             </Button>
           ) : null
         }

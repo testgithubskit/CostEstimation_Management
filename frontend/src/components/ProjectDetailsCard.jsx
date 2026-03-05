@@ -1,10 +1,15 @@
 import React from 'react';
-import { Card, Row, Col, Input } from 'antd';
+import { Card, Row, Col, Input, Grid } from 'antd';
 
-const ProjectDetailsCard = ({ project }) => {
+const { useBreakpoint } = Grid;
+
+const ProjectDetailsCard = ({ project, loading }) => {
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
+  const isTablet = !screens.lg;
   const labelStyle = {
     marginBottom: '8px',
-    fontSize: '14px',
+    fontSize: isMobile ? '13px' : '14px',
     color: '#000',
     fontWeight: '400'
   };
@@ -14,10 +19,15 @@ const ProjectDetailsCard = ({ project }) => {
       style={{ marginBottom: 24, borderRadius: 8 }}
       bordered={true}
     >
-      <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: 24, marginTop: 0 }}>
+      <h3 style={{ 
+        fontSize: isMobile ? '16px' : '18px', 
+        fontWeight: '600', 
+        marginBottom: 24, 
+        marginTop: 0 
+      }}>
         Project Details
       </h3>
-      <Row gutter={[24, 16]}>
+      <Row gutter={[isMobile ? 16 : 24, 16]}>
         <Col xs={24} sm={12} md={8}>
           <div style={labelStyle}>Part Number</div>
           <Input 
@@ -25,6 +35,7 @@ const ProjectDetailsCard = ({ project }) => {
             placeholder="Enter part number"
             readOnly
             style={{ backgroundColor: '#fafafa' }}
+            size={isMobile ? 'small' : 'default'}
           />
         </Col>
         <Col xs={24} sm={12} md={8}>
@@ -34,6 +45,7 @@ const ProjectDetailsCard = ({ project }) => {
             placeholder="Enter production order"
             readOnly
             style={{ backgroundColor: '#fafafa' }}
+            size={isMobile ? 'small' : 'default'}
           />
         </Col>
         <Col xs={24} sm={12} md={8}>
@@ -43,6 +55,7 @@ const ProjectDetailsCard = ({ project }) => {
             placeholder="Enter WBS"
             readOnly
             style={{ backgroundColor: '#fafafa' }}
+            size={isMobile ? 'small' : 'default'}
           />
         </Col>
         <Col xs={24} sm={12} md={8}>
@@ -52,6 +65,7 @@ const ProjectDetailsCard = ({ project }) => {
             placeholder="Enter sale order"
             readOnly
             style={{ backgroundColor: '#fafafa' }}
+            size={isMobile ? 'small' : 'default'}
           />
         </Col>
         <Col xs={24} sm={12} md={8}>
@@ -61,6 +75,7 @@ const ProjectDetailsCard = ({ project }) => {
             placeholder="Enter plant"
             readOnly
             style={{ backgroundColor: '#fafafa' }}
+            size={isMobile ? 'small' : 'default'}
           />
         </Col>
         <Col xs={24} sm={12} md={8}>
@@ -70,6 +85,7 @@ const ProjectDetailsCard = ({ project }) => {
             placeholder="Total operations"
             readOnly
             style={{ backgroundColor: '#fafafa' }}
+            size={isMobile ? 'small' : 'default'}
           />
         </Col>
         <Col xs={24}>
@@ -80,6 +96,7 @@ const ProjectDetailsCard = ({ project }) => {
             rows={2}
             readOnly
             style={{ backgroundColor: '#fafafa' }}
+            size={isMobile ? 'small' : 'default'}
           />
         </Col>
       </Row>

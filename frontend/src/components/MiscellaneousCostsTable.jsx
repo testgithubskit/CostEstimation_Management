@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { Card, Button, Select, Input, Table, message, Space, Popconfirm, InputNumber, Alert } from 'antd';
+import { Card, Button, Select, Input, Table, message, Space, Popconfirm, InputNumber, Alert, Grid } from 'antd';
 import { PlusOutlined, SaveOutlined, EditOutlined, DeleteOutlined, CloseOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
 import { miscellaneousCostsService } from '../services/api';
+
+const { useBreakpoint } = Grid;
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
@@ -50,6 +52,10 @@ const MiscellaneousCostsTable = forwardRef(({
   onCostsUpdate,
   initialCosts = []
 }, ref) => {
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
+  const isTablet = !screens.lg;
+  
   const [costTypes, setCostTypes] = useState([]);
   const [miscCosts, setMiscCosts] = useState(Array.isArray(initialCosts) ? initialCosts : []);
   const [editingKey, setEditingKey] = useState('');
@@ -273,7 +279,7 @@ const MiscellaneousCostsTable = forwardRef(({
       title: 'Cost Type',
       dataIndex: 'cost_type',
       key: 'cost_type',
-      width: 250,
+      width: isMobile ? 150 : 250,
       align: 'center',
       render: (value) => value || '-',
     },
@@ -281,7 +287,7 @@ const MiscellaneousCostsTable = forwardRef(({
       title: 'Cost Value (₹)',
       dataIndex: 'cost_value',
       key: 'cost_value',
-      width: 150,
+      width: isMobile ? 120 : 150,
       align: 'center',
       render: (value, record) => {
         const editable = isEditing(record);
@@ -322,36 +328,39 @@ const MiscellaneousCostsTable = forwardRef(({
     {
       title: 'Actions',
       key: 'actions',
-      width: 150,
+      width: isMobile ? 100 : 150,
       align: 'center',
       render: (_, record) => {
         const editable = isEditing(record);
         return editable ? (
-          <Space>
+          <Space size={isMobile ? 'small' : 'default'}>
             <Button
               type="link"
               onClick={() => handleSaveEdit(record)}
               icon={<SaveOutlined />}
+              size={isMobile ? 'small' : 'default'}
             >
-              Ok
+              {!isMobile && 'Ok'}
             </Button>
             <Button
               type="link"
               onClick={() => setEditingKey('')}
               icon={<CloseOutlined />}
+              size={isMobile ? 'small' : 'default'}
             >
-              Cancel
+              {!isMobile && 'Cancel'}
             </Button>
           </Space>
         ) : (
-          <Space>
+          <Space size={isMobile ? 'small' : 'default'}>
             <Button
               type="link"
               onClick={() => handleEdit(record)}
               icon={<EditOutlined />}
               disabled={editingKey !== ''}
+              size={isMobile ? 'small' : 'default'}
             >
-              Edit
+              {!isMobile && 'Edit'}
             </Button>
             <Popconfirm
               title="Delete this cost?"
@@ -364,8 +373,9 @@ const MiscellaneousCostsTable = forwardRef(({
                 danger
                 icon={<DeleteOutlined />}
                 disabled={editingKey !== ''}
+                size={isMobile ? 'small' : 'default'}
               >
-                Delete
+                {!isMobile && 'Delete'}
               </Button>
             </Popconfirm>
           </Space>
@@ -389,15 +399,22 @@ const MiscellaneousCostsTable = forwardRef(({
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
-        alignItems: 'center'
+        alignItems: isMobile ? 'flex-start' : 'center',
+        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? '8px' : '0'
       }}>
-        <h3 style={{ fontSize: '18px', fontWeight: '600', margin: 0 }}>
+        <h3 style={{ 
+          fontSize: isMobile ? '16px' : '18px', 
+          fontWeight: '600', 
+          margin: 0 
+        }}>
           Miscellaneous Costs
         </h3>
         <Space>
           <Button
             icon={isExpanded ? <UpOutlined /> : <PlusOutlined />}
             onClick={() => setIsExpanded(!isExpanded)}
+            size={isMobile ? 'small' : 'default'}
           >
             {isExpanded ? 'Close' : 'Add'}
           </Button>
@@ -410,20 +427,31 @@ const MiscellaneousCostsTable = forwardRef(({
           {/* Add New Cost Section - Inline Form */}
           <div style={{ 
             backgroundColor: '#fafafa', 
-            padding: '16px', 
+            padding: isMobile ? '12px' : '16px', 
             borderRadius: '8px',
             marginBottom: 16,
             border: '1px solid #f0f0f0'
           }}>
-            <div style={{ marginBottom: 12, fontWeight: '600', fontSize: '14px' }}>
+            <div style={{ 
+              marginBottom: 12, 
+              fontWeight: '600', 
+              fontSize: isMobile ? '13px' : '14px' 
+            }}>
               Add New Cost
             </div>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ 
+              display: 'flex', 
+              gap: isMobile ? '8px' : 12, 
+              flexWrap: 'wrap', 
+              alignItems: isMobile ? 'stretch' : 'center',
+              flexDirection: isMobile ? 'column' : 'row'
+            }}>
               <Select
                 placeholder="Select cost type"
-                style={{ width: 250 }}
+                style={{ width: isMobile ? '100%' : 250 }}
                 value={newCost.cost_type}
                 onChange={(value) => setNewCost({ ...newCost, cost_type: value })}
+                size={isMobile ? 'small' : 'default'}
               >
                 {costTypes.map(type => (
                   <Option key={type} value={type}>{type}</Option>
@@ -432,25 +460,29 @@ const MiscellaneousCostsTable = forwardRef(({
 
               <InputNumber
                 placeholder="Enter cost value"
-                style={{ width: 200 }}
+                style={{ width: isMobile ? '100%' : 200 }}
                 value={newCost.cost_value}
                 onChange={(value) => setNewCost({ ...newCost, cost_value: value })}
                 min={0}
                 formatter={value => `₹ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                 parser={value => value.replace(/₹\s?|(,*)/g, '')}
+                size={isMobile ? 'small' : 'default'}
               />
 
               <Input
                 placeholder="Description (optional)"
-                style={{ width: 300 }}
+                style={{ width: isMobile ? '100%' : 300 }}
                 value={newCost.description}
                 onChange={(e) => setNewCost({ ...newCost, description: e.target.value })}
+                size={isMobile ? 'small' : 'default'}
               />
 
               <Button
                 type="dashed"
                 icon={<PlusOutlined />}
                 onClick={handleAddCost}
+                style={{ width: isMobile ? '100%' : 'auto' }}
+                size={isMobile ? 'small' : 'default'}
               >
                 Add Cost
               </Button>
@@ -464,11 +496,17 @@ const MiscellaneousCostsTable = forwardRef(({
             rowKey="id"
             loading={loading}
             pagination={false}
+            size={isMobile ? 'small' : 'middle'}
+            scroll={{ x: isMobile ? 400 : 600 }}
             locale={{ emptyText: 'No costs added yet. Add your first cost above.' }}
             components={{
               header: {
                 cell: (props) => (
-                  <th {...props} style={{ ...props.style, backgroundColor: '#e6f7ff' }} />
+                  <th {...props} style={{ 
+                    ...props.style, 
+                    backgroundColor: '#e6f7ff',
+                    fontSize: isMobile ? '12px' : '14px'
+                  }} />
                 ),
               },
             }}
@@ -479,7 +517,7 @@ const MiscellaneousCostsTable = forwardRef(({
                     <strong>Total Miscellaneous Cost</strong>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={1}>
-                    <strong style={{ color: '#1890ff', fontSize: 16 }}>
+                    <strong style={{ color: '#1890ff', fontSize: isMobile ? 14 : 16 }}>
                       ₹{totalMiscCost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </strong>
                   </Table.Summary.Cell>

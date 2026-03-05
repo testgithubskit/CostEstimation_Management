@@ -1,7 +1,9 @@
 import React, { Suspense, useEffect, useRef, useState } from 'react';
 import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Stage, Gltf, useProgress, Html, GizmoHelper, GizmoViewcube } from '@react-three/drei';
-import { Empty } from 'antd';
+import { Empty, Grid } from 'antd';
+
+const { useBreakpoint } = Grid;
 
 function Loader() {
   const { progress } = useProgress();
@@ -9,7 +11,7 @@ function Loader() {
 }
 
 // Component to handle screenshot capture
-function CaptureController({ onCaptureRef, showGizmo }) {
+function CaptureController({ onCaptureRef, showGizmo, isMobile }) {
   const { gl, scene, camera } = useThree();
   
   useEffect(() => {
@@ -27,7 +29,7 @@ function CaptureController({ onCaptureRef, showGizmo }) {
   return (
     <>
       {showGizmo && (
-        <GizmoHelper alignment="top-right" margin={[80, 80]}>
+        <GizmoHelper alignment="top-right" margin={[isMobile ? 60 : 80, isMobile ? 60 : 80]}>
           <GizmoViewcube />
         </GizmoHelper>
       )}
@@ -36,6 +38,8 @@ function CaptureController({ onCaptureRef, showGizmo }) {
 }
 
 const ModelViewer3D = ({ has3D, modelUrl, onCaptureRef }) => {
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
   const [showGizmo, setShowGizmo] = useState(true);
   const glRef = useRef(null);
 
@@ -117,7 +121,7 @@ const ModelViewer3D = ({ has3D, modelUrl, onCaptureRef }) => {
         <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
         <directionalLight position={[-10, -10, -5]} intensity={0.5} />
         <OrbitControls makeDefault />
-        <CaptureController onCaptureRef={onCaptureRef} showGizmo={showGizmo} />
+        <CaptureController onCaptureRef={onCaptureRef} showGizmo={showGizmo} isMobile={isMobile} />
       </Suspense>
     </Canvas>
   );

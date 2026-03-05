@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_BASE_URL = `${window.location.protocol}//${window.location.hostname}:8000/api/v1`;
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api/v1',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -32,7 +34,7 @@ export const projectService = {
 
   // Download file (url helper)
   getFileUrl: (projectId, fileType) => {
-    return `http://localhost:8000/api/v1/projects/${projectId}/files/${fileType}`;
+    return `${API_BASE_URL}/projects/${projectId}/files/${fileType}`;
   },
 
   // Check file status (HEAD)
