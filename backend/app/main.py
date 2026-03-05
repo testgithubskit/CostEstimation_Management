@@ -37,7 +37,7 @@ app.include_router(miscellaneous_costs.router, prefix=settings.API_V1_STR)
 async def startup_event():
     """Initialize database on startup"""
     init_db()
-    print("✅ Database initialized")
+    print("Database initialized")
 
 @app.get("/")
 async def root():
